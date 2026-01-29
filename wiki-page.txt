@@ -1,0 +1,68 @@
+====== NimblePhysics - Simulateur de Physique pour Biomecanique ======
+
+Application de simulation physique et visualisation 3D basee sur **NimblePhysics**, specialisee pour la biomecanique et le deep learning.
+
+===== Description =====
+
+**NimblePhysics** est un moteur de physique differentiable developpe par Keenon Werling (Stanford). Il permet de :
+
+  * Simuler des systemes multi-corps rigides
+  * Charger des modeles URDF (robots, squelettes)
+  * Visualiser en temps reel via une interface web 3D
+  * Integrer avec PyTorch pour le deep learning
+
+===== Acces =====
+
+  * **URL Visualiseur** : [[https://192.168.0.56/nimble/]]
+  * **Port WebSocket** : 8070 (interne)
+  * **Port HTTP** : 8071 (interne)
+
+===== Utilisation dans JupyterHub =====
+
+Utiliser le kernel **nimblephysics-docker** dans JupyterHub.
+
+==== Code de base ====
+
+<code python>
+import nimblephysics as nimble
+
+# Creer le monde physique
+world = nimble.simulation.World()
+world.setGravity([0, -9.81, 0])
+
+# Optionnel : charger un modele URDF
+# skeleton = world.loadSkeleton("/home/user/modele.urdf")
+
+# Creer et demarrer le GUI
+gui = nimble.NimbleGUI(world)
+gui.serve(8071)
+
+print("GUI pret ! Ouvrir https://192.168.0.56/nimble/")
+
+# Garder le serveur actif
+gui.blockWhileServing()
+</code>
+
+==== Notes importantes ====
+
+  * Executer le code **une seule fois** (sinon erreur "port already in use")
+  * Ouvrir le visualiseur dans un navigateur **apres** avoir lance le code
+  * Pour arreter : interrompre la cellule dans Jupyter
+
+===== Architecture technique =====
+
+  * **Docker image** : nimblephysics:working
+  * **Kernel Jupyter** : nimblephysics-docker (configure dans JupyterHub)
+  * **Nginx proxy** : /nimble/ -> fichiers statiques, /nimble-ws -> WebSocket 8070
+
+===== Documentation externe =====
+
+  * [[https://nimblephysics.org/docs/|Documentation officielle]]
+  * [[https://github.com/keenon/nimblephysics|GitHub]]
+
+===== Installation (admin) =====
+
+L image Docker contient tout le necessaire. Configuration nginx dans /etc/nginx/sites-enabled/physioevalab.
+
+Fichiers web patches dans /var/www/nimble/ (bundle.js modifie pour utiliser le proxy WebSocket nginx).
+
